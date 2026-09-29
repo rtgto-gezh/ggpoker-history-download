@@ -1,0 +1,18 @@
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器
+.vscode/
+.idea/
+
+# 产物与临时文件
+*.zip
+*.log
+
+# 计划执行的工作区（SDD ledger 等工具暂存）
+.superpowers/
+
+# 内部计划与设计文档（不对外发布）
+docs/superpowers/
