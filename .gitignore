@@ -10,6 +10,9 @@ desktop.ini
 # 产物与临时文件
 *.zip
 *.log
+__pycache__/
+# 每次打包现生成，见 tools/build.py
+extension/build-info.json
 
 # 计划执行的工作区（SDD ledger 等工具暂存）
 .superpowers/

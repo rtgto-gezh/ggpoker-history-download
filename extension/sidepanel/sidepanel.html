@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>GGPoker记录下载</title>
+    <style>
+      :root {
+        --bg: #12151c;
+        --surface: #1a1f29;
+        --surface-2: #222835;
+        --border: #2b3242;
+        --text: #e8edf5;
+        --text-2: #a3aec2;
+        --text-3: #6b778c;
+        --accent: #3b82f6;
+        --accent-2: #2563eb;
+        --link: #60a5fa;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --err: #f87171;
+        --radius: 10px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          13px/1.5 -apple-system,
+          "Segoe UI",
+          "PingFang SC",
+          "Microsoft YaHei",
+          sans-serif;
+      }
+      body {
+        padding: 14px 14px 18px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        user-select: none;
+      }
+
+      a {
+        color: var(--link);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      button {
+        font: inherit;
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: not-allowed;
+      }
+
+      /* ---------- 顶栏：官网链接 + 语言 + 退出 ---------- */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 28px;
+      }
+      #home-link {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        color: var(--text);
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      #home-link:hover {
+        color: var(--link);
+        text-decoration: none;
+      }
+      #home-link svg {
+        width: 16px;
+        height: 16px;
+        flex: 0 0 auto;
+        color: var(--text-3);
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+        flex: 0 0 auto;
+      }
+      #lang-switch {
+        font-size: 12px;
+        color: var(--text-3);
+        cursor: pointer;
+      }
+      #lang-switch span {
+        padding: 0 2px;
+      }
+      #logout-btn {
+        display: none; /* 只在登录后显示 */
+        height: 24px;
+        padding: 0 10px;
+        background: transparent;
+        color: var(--text-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 12px;
+      }
+      #logout-btn:hover {
+        color: var(--text);
+        border-color: #3a4458;
+      }
+      #logout-error {
+        color: var(--err);
+        font-size: 12px;
+      }
+
+      /* ---------- 通用卡片 ---------- */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+      }
+
+      /* ---------- 登录 ---------- */
+      #auth-loading {
+        display: none;
+        text-align: center;
+        padding: 36px 0;
+        color: var(--text-2);
+      }
+      .spinner {
+        width: 22px;
+        height: 22px;
+        margin: 0 auto 10px;
+        border: 2.5px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      #login-form {
+        display: none;
+        padding: 18px 16px 16px;
+      }
+      .login-title {
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 14px;
+      }
+      .field {
+        width: 100%;
+        height: 36px;
+        padding: 0 12px;
+        margin-bottom: 10px;
+        background: var(--bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+        user-select: text;
+      }
+      .field:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px #3b82f633;
+      }
+      .check-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 2px 0 12px;
+        color: var(--text-2);
+        font-size: 12.5px;
+        cursor: pointer;
+      }
+      .check-row input {
+        margin: 0;
+        accent-color: var(--accent);
+      }
+      #login-btn {
+        width: 100%;
+        height: 38px;
+        background: var(--accent-2);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      #login-btn:hover:not(:disabled) {
+        background: #1d4ed8;
+      }
+      #login-btn:disabled {
+        opacity: 0.6;
+      }
+      .login-sub {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .login-sub button {
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--link);
+        font-size: 12.5px;
+      }
+      .login-sub button:hover {
+        text-decoration: underline;
+      }
+      #login-error {
+        color: var(--err);
+        font-size: 12.5px;
+        min-height: 18px;
+        margin-top: 8px;
+        text-align: center;
+      }
+
+      /* ---------- 主界面 ---------- */
+      #main-panel {
+        display: none;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .sync-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      #sync-page-type {
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      #sync-badge {
+        font-size: 11.5px;
+        padding: 2px 9px;
+        border-radius: 999px;
+        background: #2a3345;
+        color: var(--text-2);
+      }
+      .kv {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 3px 0;
+      }
+      .kv .k {
+        color: var(--text-3);
+        flex: 0 0 auto;
+      }
+      .kv .v {
+        color: var(--text);
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      #sync-last-run .ago {
+        color: var(--text-3);
+        margin-left: 4px;
+      }
+      #coverage-hint {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+        font-size: 12px;
+        line-height: 1.7;
+        color: var(--text-2);
+      }
+
+      /* 进度 + 操作 */
+      .progress-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      #progress-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .progress-num {
+        font-size: 14px;
+        color: var(--text);
+        font-variant-numeric: tabular-nums;
+      }
+      .progress-num .unit {
+        color: var(--text-3);
+        font-size: 12px;
+        margin-left: 2px;
+      }
+      .interval {
+        text-align: right;
+        font-size: 11.5px;
+        color: var(--text-3);
+      }
+      #auto-interval {
+        color: var(--ok);
+      }
+
+      .button-row {
+        display: flex;
+        gap: 8px;
+      }
+      .button-row button {
+        height: 38px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+      }
+      #start-stop-btn {
+        flex: 2;
+        background: var(--accent-2);
+      }
+      #start-stop-btn:hover:not(:disabled) {
+        background: #1d4ed8;
+      }
+      #start-stop-btn:disabled {
+        background: #2a3345;
+        color: var(--text-3);
+      }
+      #pause-resume-btn {
+        flex: 1;
+        background: #b45309;
+      }
+      #pause-resume-btn:hover:not(:disabled) {
+        background: #92400e;
+      }
+      #pause-resume-btn:disabled {
+        background: #2a3345;
+        color: var(--text-3);
+      }
+      #clear-sync-btn {
+        display: block;
+        margin: 10px auto 0;
+        background: none;
+        border: none;
+        color: var(--text-3);
+        font-size: 11.5px;
+      }
+      #clear-sync-btn:hover {
+        color: var(--err);
+      }
+
+      /* 下载记录 */
+      .ledger-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--text-2);
+        font-weight: 600;
+      }
+      #ledger-count {
+        font-weight: 400;
+        color: var(--text-3);
+      }
+      #ledger-list {
+        font-size: 12px;
+      }
+      .ledger-row {
+        padding: 5px 0;
+        border-top: 1px solid var(--border);
+      }
+      .ledger-row:first-child {
+        border-top: none;
+      }
+      .ledger-row .cat {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: var(--text);
+      }
+      .ledger-row .cat .n {
+        color: var(--text-3);
+        font-variant-numeric: tabular-nums;
+      }
+      .ledger-row .rng {
+        color: var(--text-2);
+        font-variant-numeric: tabular-nums;
+        word-break: break-word;
+      }
+      .ledger-row .pending {
+        color: var(--err);
+      }
+      .ledger-empty {
+        color: var(--text-3);
+      }
+      .ledger-tip {
+        margin-top: 8px;
+        padding: 7px 9px;
+        background: #3a2f1e55;
+        border: 1px solid #5c4a24;
+        border-radius: 7px;
+        color: var(--warn);
+        font-size: 11.5px;
+        line-height: 1.6;
+      }
+      .ledger-actions {
+        display: flex;
+        gap: 6px;
+        margin-top: 8px;
+      }
+      .ledger-actions button {
+        flex: 1;
+        height: 26px;
+        background: transparent;
+        color: var(--link);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 11.5px;
+      }
+      .ledger-actions button:hover:not(:disabled) {
+        background: var(--surface-2);
+      }
+      .ledger-actions button:disabled {
+        color: var(--text-3);
+      }
+      .ledger-actions button.danger {
+        flex: 0 0 auto;
+        padding: 0 10px;
+        color: var(--text-3);
+      }
+      .ledger-actions button.danger:hover:not(:disabled) {
+        color: var(--err);
+      }
+      .ledger-actions button.primary {
+        background: var(--accent-2);
+        border-color: var(--accent-2);
+        color: #fff;
+        font-weight: 600;
+      }
+      .ledger-actions button.primary:hover:not(:disabled) {
+        background: #1d4ed8;
+      }
+      .ledger-actions button.primary:disabled {
+        background: #2a3345;
+        border-color: var(--border);
+        color: var(--text-3);
+      }
+      #rtgto-sync-hint {
+        display: none;
+        margin-top: 10px;
+        padding: 7px 9px;
+        border-radius: 7px;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      #rtgto-sync-hint.on {
+        display: block;
+        background: #1e3a2f66;
+        border: 1px solid #2f5a45;
+        color: var(--ok);
+      }
+      #rtgto-sync-hint.off {
+        display: block;
+        background: #3a2f1e55;
+        border: 1px solid #5c4a24;
+        color: var(--warn);
+      }
+      #ext-update-banner {
+        display: none;
+        padding: 9px 11px;
+        border-radius: 9px;
+        background: #3a2f1e66;
+        border: 1px solid #7a5a1e;
+        color: var(--warn);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      #ext-update-banner.show {
+        display: block;
+      }
+      #ext-update-banner b {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+      .rtgto-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      .rtgto-status {
+        color: var(--text-2);
+        min-width: 0;
+      }
+      .rtgto-status::before {
+        content: "● ";
+      }
+      .rtgto-status.on::before {
+        color: var(--ok);
+      }
+      .rtgto-status.off::before {
+        color: var(--text-3);
+      }
+      .rtgto-status.busy::before {
+        color: var(--warn);
+      }
+      #rtgto-result {
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-2);
+        margin-top: 4px;
+        word-break: break-word;
+      }
+      #rtgto-result .bad {
+        color: var(--err);
+      }
+      #rtgto-result .ok {
+        color: var(--ok);
+      }
+      #rtgto-activity {
+        font-size: 12px;
+        line-height: 1.6;
+        color: var(--text-2);
+        margin-top: 4px;
+      }
+      #rtgto-activity:empty {
+        display: none;
+      }
+      #rtgto-activity div::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        margin-right: 6px;
+        border-radius: 50%;
+        background: var(--warn);
+        vertical-align: middle;
+        animation: gg-pulse 1.2s ease-in-out infinite;
+      }
+      @keyframes gg-pulse {
+        0%,
+        100% {
+          opacity: 0.35;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      .ledger-row .vf {
+        color: var(--text-3);
+      }
+      .ledger-row .vf .bad {
+        color: var(--err);
+      }
+      .ledger-row .vf .ok {
+        color: var(--ok);
+      }
+      details.more {
+        margin-top: 8px;
+        font-size: 12px;
+        color: var(--text-3);
+      }
+      details.more summary {
+        cursor: pointer;
+        list-style: none;
+      }
+      details.more summary::-webkit-details-marker {
+        display: none;
+      }
+      details.more summary::before {
+        content: "▸ ";
+      }
+      details.more[open] summary::before {
+        content: "▾ ";
+      }
+      #repair-box {
+        margin-top: 6px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+      #repair-actions {
+        display: none;
+      }
+      #repair-info {
+        font-size: 12px;
+        color: var(--text-2);
+        line-height: 1.7;
+        word-break: break-word;
+      }
+      #repair-info .cur {
+        color: var(--text);
+      }
+      #repair-info .muted {
+        color: var(--text-3);
+      }
+      #repair-info .bad {
+        color: var(--err);
+      }
+      #repair-info .ok {
+        color: var(--ok);
+      }
+      button.mini {
+        height: 22px;
+        padding: 0 9px;
+        background: transparent;
+        color: var(--link);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 11.5px;
+        font-weight: 400;
+      }
+      button.mini:hover:not(:disabled) {
+        background: var(--surface-2);
+      }
+
+      /* 运行日志 */
+      .log-card {
+        padding: 10px 12px;
+      }
+      #status-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 12px;
+        color: var(--text-2);
+        font-weight: 600;
+      }
+      #copy-log-btn {
+        height: 22px;
+        padding: 0 9px;
+        background: transparent;
+        color: var(--link);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 11.5px;
+        font-weight: 400;
+      }
+      #copy-log-btn:hover {
+        background: var(--surface-2);
+      }
+      #status-card {
+        height: 190px;
+        overflow-y: auto;
+        padding: 6px 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        user-select: text;
+      }
+      #status {
+        white-space: pre-wrap;
+        color: var(--text-3);
+        font-size: 12px;
+      }
+      .log-line {
+        display: flex;
+        gap: 8px;
+        padding: 2px 0;
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: normal;
+        word-break: break-word;
+      }
+      .log-line .lt {
+        color: var(--text-3);
+        flex: 0 0 auto;
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: 11px;
+        padding-top: 1px;
+      }
+      .log-line .lm {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .log-line.error .lm {
+        color: var(--err);
+        font-weight: 600;
+      }
+      .log-line.warning .lm {
+        color: var(--warn);
+      }
+      .log-line.success .lm {
+        color: var(--ok);
+      }
+      .log-line.info .lm {
+        color: #c5cedc;
+      }
+
+      /* 注意事项：默认收起，省地方 */
+      details.notice {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 0 14px;
+        color: var(--text-2);
+        font-size: 12px;
+        line-height: 1.75;
+      }
+      details.notice summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 9px 0;
+        color: var(--warn);
+        font-weight: 600;
+      }
+      details.notice summary::-webkit-details-marker {
+        display: none;
+      }
+      details.notice summary::before {
+        content: "▸ ";
+      }
+      details.notice[open] summary::before {
+        content: "▾ ";
+      }
+      details.notice[open] {
+        padding-bottom: 10px;
+      }
+
+      /* 页脚：规则版本 */
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-3);
+        padding: 0 2px;
+        margin-top: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 顶栏：官网链接（登录前后都在） + 语言 + 退出 -->
+    <div class="topbar">
+      <a id="home-link" href="https://www.rtgto.net" target="_blank" rel="noopener">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        <span data-i18n="website_link">RtGTO官网</span>
+      </a>
+      <div class="topbar-right">
+        <span id="lang-switch"> <span id="lang-zh">中</span>|<span id="lang-en">EN</span> </span>
+        <button id="logout-btn" data-i18n="logout">退出</button>
+      </div>
+    </div>
+
+    <!-- 校验登录 / 自动登录中 -->
+    <div id="auth-loading" class="card">
+      <div class="spinner"></div>
+      <!-- 文字由 JS 按状态写入（检查中 / 自动登录中），不能挂 data-i18n，否则切语言时会被覆盖回去 -->
+      <div id="auth-loading-text">正在检查登录状态...</div>
+    </div>
+
+    <!-- 登录表单 -->
+    <div id="login-form" class="card">
+      <div class="login-title" data-i18n="login_tip">请登录以使用插件</div>
+      <input
+        id="login-username"
+        class="field"
+        type="text"
+        placeholder="用户名"
+        autocomplete="username"
+        data-i18n-placeholder="username_placeholder" />
+      <input
+        id="login-password"
+        class="field"
+        type="password"
+        placeholder="密码"
+        autocomplete="current-password"
+        data-i18n-placeholder="password_placeholder" />
+      <label class="check-row">
+        <input type="checkbox" id="remember-pwd" checked />
+        <span data-i18n="remember_pwd">记住密码，下次自动登录</span>
+      </label>
+      <button id="login-btn" data-i18n="login">登录</button>
+      <div class="login-sub">
+        <button id="register-btn" data-i18n="register">注册账号</button>
+        <button id="clear-btn" data-i18n="clear">清空</button>
+      </div>
+      <div id="login-error"></div>
+    </div>
+
+    <!-- 主界面 -->
+    <div id="main-panel">
+      <!-- 扩展比实时GTO 内置的旧时提示更新 -->
+      <div id="ext-update-banner"></div>
+      <!-- 同步状态 -->
+      <div id="sync-card" class="card">
+        <div class="sync-head">
+          <span id="sync-page-type">—</span>
+          <span id="sync-badge">—</span>
+        </div>
+        <div class="kv">
+          <span class="k" data-i18n="synced_through">已同步至</span>
+          <span class="v" id="sync-watermark">—</span>
+        </div>
+        <div class="kv">
+          <span class="k" data-i18n="last_sync_at">上次数据同步</span>
+          <span class="v" id="sync-last-run">—</span>
+        </div>
+        <div class="kv">
+          <span class="k" data-i18n="will_sync">本次将同步</span>
+          <span class="v" id="sync-pending">—</span>
+        </div>
+        <div id="coverage-hint"></div>
+      </div>
+
+      <!-- 进度 + 操作 -->
+      <div class="card">
+        <div class="progress-row">
+          <div id="progress-info">
+            <svg id="progress-circle" width="44" height="44" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="20" stroke="#2b3242" stroke-width="6" fill="none" />
+              <circle
+                id="progress-bar"
+                cx="24"
+                cy="24"
+                r="20"
+                stroke="#3b82f6"
+                stroke-width="6"
+                fill="none"
+                stroke-linecap="round"
+                stroke-dasharray="125.6"
+                stroke-dashoffset="125.6"
+                transform="rotate(-90 24 24)" />
+              <text id="progress-text" x="24" y="28" text-anchor="middle" font-size="12" fill="#e8edf5">0%</text>
+            </svg>
+            <!-- 批次数事先算不出来（会动态调整），所以进度按天数算 -->
+            <div class="progress-num">
+              <span id="current-round">0</span> / <span id="total-rounds">0</span
+              ><span class="unit" data-i18n="progress_days">天</span>
+            </div>
+          </div>
+          <!-- 批次跨度由插件按 GG 单次上限(500 概要 / 2 万手)边跑边调 -->
+          <div class="interval">
+            <div data-i18n="date_interval">日期间隔</div>
+            <div id="auto-interval" data-i18n="interval_auto">自动</div>
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="start-stop-btn" data-i18n="sync_now">开始同步</button>
+          <button id="pause-resume-btn" disabled data-i18n="pause">暂停</button>
+        </div>
+        <!-- 开始同步 / 补下载时检测实时GTO是否打开，告诉用户去哪里看核对状态 -->
+        <div id="rtgto-sync-hint"></div>
+        <button id="clear-sync-btn" data-i18n="clear_sync">清除同步记录（下次从头同步）</button>
+      </div>
+
+      <!-- 下载核对：只放要紧的——实时GTO 连没连上、最近一次核对结果、还缺哪些日期。
+         导出 / 清空 / 导入核对结果这些不常用的操作收进"更多操作"。 -->
+      <div id="ledger-card" class="card">
+        <div class="ledger-head">
+          <span data-i18n="rtgto_card_title">下载核对</span>
+          <span id="rtgto-status" class="rtgto-status off"></span>
+        </div>
+        <div id="rtgto-result"></div>
+        <!-- 正在进行的：等 GG 准备文件 / 浏览器下载中 / 实时GTO 解析中 / 等待核对，实时刷新 -->
+        <div id="rtgto-activity"></div>
+        <div id="repair-box">
+          <div id="repair-info"></div>
+        </div>
+        <!-- 分类明细不再显示，渲染仍在（补下载清单要用），只是隐藏 -->
+        <div id="ledger-list" hidden></div>
+        <details class="more">
+          <summary><span data-i18n="more_actions">更多操作</span></summary>
+          <div class="ledger-actions">
+            <button id="ledger-export-json" data-i18n="ledger_export_json">导出 JSON</button>
+            <button id="ledger-export-csv" data-i18n="ledger_export_csv">导出 CSV</button>
+            <button id="ledger-clear" class="danger" data-i18n="ledger_clear">清空记录</button>
+          </div>
+          <div class="ledger-actions">
+            <button id="repair-import" data-i18n="repair_import">导入核对结果</button>
+            <span id="repair-actions"
+              ><button id="repair-clear" class="danger" data-i18n="repair_clear">清除</button></span
+            >
+          </div>
+          <input type="file" id="repair-file" accept=".json,application/json" style="display: none" />
+        </details>
+      </div>
+
+      <!-- 运行日志 -->
+      <div class="card log-card">
+        <div id="status-head">
+          <span data-i18n="status_title">运行日志</span>
+          <button id="copy-log-btn" data-i18n="copy_log">复制日志</button>
+        </div>
+        <div id="status-card">
+          <div id="status"></div>
+        </div>
+      </div>
+
+      <!-- 注意事项（默认收起） -->
+      <details class="notice">
+        <summary data-i18n="notice">注意事项</summary>
+        <div data-i18n="notice_1">1. 下载过程中鼠标请勿频繁操作页面。</div>
+        <div data-i18n="notice_2">2. 若遇到异常或卡住，请刷新页面后重新操作。</div>
+        <div data-i18n="notice_3">3. 每批都会高亮下载按钮并一直等你点击，不点不会继续；要中断请点"停止"。</div>
+        <div data-i18n="notice_4">4. 本插件支持锦标赛、极速现金局、德州扑克、奥马哈（PLO）四种游戏。</div>
+        <div data-i18n="notice_5">5. 同步区间和批次跨度均自动决定，无需手动设置。</div>
+        <div data-i18n="notice_6">6. 如果遇到操作无反应，请刷新页面后重新操作。</div>
+        <div data-i18n="notice_7">
+          7.
+          网络中断时下载可能静默失败。请在本机打开实时GTO的「GG数据导入」页，扩展会自动交给它核实下载完整性，漏下的部分会出现在补下载里。
+        </div>
+      </details>
+
+      <!-- 页脚：解析规则版本（可远程更新） -->
+      <div class="footer">
+        <span id="rules-info">—</span>
+        <a href="#" id="update-rules-link" data-i18n="check_rules_update">检查规则更新</a>
+      </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="../shared/gg-limits.js"></script>
+    <script src="../shared/sync-state.js"></script>
+    <script src="../shared/download-ledger.js"></script>
+    <script src="../shared/rtgto-bridge.js"></script>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>

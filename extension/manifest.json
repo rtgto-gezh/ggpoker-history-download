@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "GGPoker记录下载助手",
+  "version": "1.2.0",
+  "description": "方便GGPoker用户下载每场游戏概要信息和历史手牌记录。",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://my.pokercraft.com/*", "https://*.ggpoker.com/*"],
+      "js": ["content/network-probe.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://my.pokercraft.com/*", "https://*.ggpoker.com/*"],
+      "js": [
+        "shared/gg-limits.js",
+        "shared/sync-state.js",
+        "shared/download-ledger.js",
+        "content/pokercraft-rules.js",
+        "content/pokercraft-dom.js",
+        "content/content-script.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": ["storage", "tabs", "scripting", "downloads", "sidePanel", "notifications"],
+  "host_permissions": [
+    "https://my.pokercraft.com/*",
+    "https://*.ggpoker.com/*",
+    "https://gateway.rtgto.net/*",
+    "http://127.0.0.1/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["sidepanel/*"],
+      "matches": [
+        "https://my.pokercraft.com/*",
+        "https://ggpoker.com/*",
+        "https://www.ggpoker.com/*",
+        "https://app.ggpoker.com/*"
+      ]
+    }
+  ],
+  "side_panel": {
+    "default_path": "sidepanel/sidepanel.html"
+  }
+}

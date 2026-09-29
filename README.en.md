@@ -26,6 +26,7 @@ This is a paid, licensed product and requires an account.
 | Chrome Web Store | Almost everyone | Search the store for "GGPoker记录下载助手" and click "Add to Chrome" |
 | Built into the RealtimeGTO client | Users who already run RealtimeGTO | Open the RealtimeGTO client → "GG Data Import" → "Install GG download extension"; the client unpacks the package and shows you where it is |
 | GitHub Releases, manual install | Users who want to control the version themselves | Download the zip from this repository's Releases and follow the steps below |
+| From source (developers) | Anyone who wants to read, audit or build it | Clone this repository and run `python tools/build.py`, or point "Load unpacked" straight at [`extension/`](extension/) |
 
 Manual install steps:
 
@@ -49,6 +50,7 @@ You click the download button once per batch — that is a limit of the page its
 - [Usage](docs/en/usage.md) — installation, signing in, syncing, verification, FAQ
 - [Product Overview](docs/en/product.md) — what it solves, who it is for, where its limits are
 - [Design Notes](docs/en/design.md) — why it is built this way
+- [Code Structure](docs/en/architecture.md) — where the source is and how the pieces connect
 
 ## Requirements
 
@@ -77,6 +79,6 @@ Your account details and download records stay in your local browser. Apart from
 
 ## License and disclaimer
 
-This repository contains product documentation only, not the extension's source code. The documentation may be read and shared freely; redistributing, decompiling or commercially using the extension package is not allowed. See [LICENSE.md](LICENSE.md).
+This repository contains the product documentation together with the extension's **complete source code** ([`extension/`](extension/)). The source is public and open to audit, and you may build it for your own use — but **redistribution is not allowed**, neither of the package nor of any version built or modified from this source, and neither is commercial use. This is not an open-source licence; see [LICENSE.md](LICENSE.md).
 
 This product is not affiliated with GGPoker or PokerCraft, and is not sponsored or endorsed by them. When using it, you are responsible for complying with the terms of service of the source sites.

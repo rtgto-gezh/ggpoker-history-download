@@ -1,0 +1,127 @@
+{
+  "version": 6,
+  "updatedAt": "2026-09-24",
+  "note": "Angular Material MDC (v15+/v19)",
+  "pageTypes": {
+    "tournament": "my\\.pokercraft\\.com/tournament",
+    "rushAndCash": "my\\.pokercraft\\.com/rush-and-cash",
+    "holdem": "my\\.pokercraft\\.com/holdem",
+    "plo": "my\\.pokercraft\\.com/plo(?:[/?#]|$)"
+  },
+  "selectors": {
+    "dateSelectLabels": ["日期", "日期範圍", "date", "period", "기간"],
+    "dateSelectFallback": ["mat-select"],
+    "selectTrigger": [".mat-mdc-select-trigger", ".mat-select-trigger"],
+    "openOptions": [
+      ".cdk-overlay-container mat-option",
+      ".mat-mdc-select-panel mat-option",
+      ".mat-select-panel mat-option",
+      ".cdk-overlay-container [role='option']"
+    ],
+    "customRangeLabels": [
+      "定制范围",
+      "自定义范围",
+      "自訂範圍",
+      "定制範圍",
+      "自定义",
+      "custom range",
+      "customrange",
+      "custom"
+    ],
+    "dateRangeInputs": [
+      "mat-date-range-input input",
+      ".mat-date-range-input-container input",
+      "input[matstartdate]",
+      "input[matenddate]"
+    ],
+    "dateRangeInputsFallback": ["input[id^='mat-date-range-input-']"],
+    "datepickerPanel": ["mat-datepicker-content", ".mat-datepicker-content", ".mat-datepicker-popup"],
+    "datepickerCloseButton": [".mat-datepicker-close-button", "mat-datepicker-content button[mat-raised-button]"],
+    "overlayBackdrop": [".cdk-overlay-backdrop.cdk-overlay-backdrop-showing", ".cdk-overlay-backdrop"],
+    "calendarPrevButton": [".mat-calendar-previous-button"],
+    "calendarNextButton": [".mat-calendar-next-button"],
+    "calendarPeriodButton": [".mat-calendar-period-button"],
+    "calendarCell": [".mat-calendar-body-cell"],
+    "calendarCellContent": [".mat-calendar-body-cell-content"],
+    "showButton": [
+      "app-search-filter button[btn-red].search-form-button",
+      "button[btn-red].search-form-button",
+      ".search-form-container button[btn-red]",
+      ".list-submit-buttons button[btn-red]",
+      "button[btn-red].uppercase"
+    ],
+    "showButtonLabels": ["显示", "顯示", "show", "search", "apply"],
+    "filterScope": ["app-search-filter", ".search-form-container"],
+    "headerRow": ["thead .mat-mdc-header-row", ".mat-mdc-header-row", ".mat-header-row", "thead tr"],
+    "selectAll": [
+      "input.mdc-checkbox__native-control",
+      "input[type='checkbox']",
+      ".mdc-checkbox__background",
+      ".mat-checkbox-frame"
+    ],
+    "sessionsScope": ["app-sessions", ".table-wrapper"],
+    "spinner": ["app-page-spinner#session-spinner", "app-page-spinner", ".page-spinner"],
+    "noDataLabels": ["没有数据", "沒有數據", "no data", "无数据", "無數據"],
+    "limitErrorLabels": [
+      "超过允许的最大数量",
+      "超出允许的最大数量",
+      "超过允许",
+      "超過允許",
+      "最大数量",
+      "最大數量",
+      "exceeds the maximum",
+      "exceed the maximum",
+      "maximum number",
+      "too many",
+      "最多可下载",
+      "最多可下載",
+      "you can download at most",
+      "download limit"
+    ],
+    "limitDialogLabels": ["下载限制", "下載限制", "download limit"],
+    "limitDialogClose": [
+      "mat-dialog-container button[mat-dialog-close]",
+      "mat-dialog-container .close",
+      "mat-dialog-container button",
+      ".cdk-overlay-container .close",
+      ".cdk-overlay-container button[aria-label='Close']",
+      ".cdk-overlay-container button[aria-label='关闭']"
+    ],
+    "limitErrorScope": [
+      ".cdk-overlay-container",
+      "mat-dialog-container",
+      "simple-snack-bar",
+      ".mat-mdc-snack-bar-label",
+      "app-search-filter",
+      "app-sessions"
+    ],
+    "dialogContainer": [
+      "mat-dialog-container",
+      ".cdk-overlay-container [role='dialog']",
+      ".cdk-overlay-container .cdk-overlay-pane"
+    ],
+    "busySpinner": [
+      "mat-spinner",
+      "mat-progress-spinner",
+      ".mat-mdc-progress-spinner",
+      "mat-progress-bar",
+      ".mat-mdc-progress-bar",
+      "app-page-spinner",
+      ".page-spinner",
+      ".cdk-overlay-container .spinner",
+      ".cdk-overlay-container [class*='loading']"
+    ],
+    "modalBackdrop": [".cdk-overlay-backdrop.cdk-overlay-backdrop-showing", ".cdk-overlay-dark-backdrop"],
+    "rowCheckbox": ["tbody tr input.mdc-checkbox__native-control", "tbody tr input[type='checkbox']"],
+    "summaryButton": [
+      "app-download-button-game-session-summary button",
+      "app-download-button-game-session-summary .btn-download"
+    ],
+    "historyButton": [
+      "app-download-button-game-session-hand button",
+      "app-download-button-game-session-hand .btn-download"
+    ],
+    "downloadCountText": ["small"],
+    "mdcProbe": [".mat-mdc-header-row", ".mat-mdc-select"]
+  }
+}
